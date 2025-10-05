@@ -148,21 +148,38 @@ public class WallHugAutomationModule extends ToggleableModule {
 
 		eflyModule.setToggled(true);
 
-		if (playerPosVec.y > YLevel.getValue() + 1) {
-			mc.player.setYRot(dir.toYRot());
-			mc.player.setYHeadRot(dir.toYRot());
-			mc.player.setYBodyRot(dir.toYRot());
-			eflyModule.setToggled(true);
-			return;
-		}
-
-		if (!mc.player.isFallFlying()) return;
-
 		BlockPos rightRail = playerBlockPos.relative(dir.getClockWise(), 1);
 		BlockPos leftRail = playerBlockPos.relative(dir.getCounterClockWise(), 1);
 
 		boolean rightHasHole = holes.stream().anyMatch(h -> Vec3.atCenterOf(h).distanceTo(Vec3.atCenterOf(rightRail)) < 5);
 		boolean leftHasHole = holes.stream().anyMatch(h -> Vec3.atCenterOf(h).distanceTo(Vec3.atCenterOf(leftRail)) < 5);
+
+		if (playerPosVec.y > YLevel.getValue() + 1) {
+			float mainYaw = dir.toYRot();
+			float adjustedYaw = mainYaw;
+
+			Direction sideToWall = null;
+			if (!leftHasHole && railing.getValue() != Railing.RIGHT) {
+				sideToWall = dir.getCounterClockWise();
+			} else if (!rightHasHole && railing.getValue() != Railing.LEFT) {
+				sideToWall = dir.getClockWise();
+			}
+
+			if (sideToWall != null) {
+				Direction awayFromWall = sideToWall.getOpposite();
+				float sideYaw = awayFromWall.toYRot();
+				adjustedYaw = mainYaw + Mth.wrapDegrees(sideYaw - mainYaw) * 0.05f;
+			}
+
+			mc.player.setYRot(adjustedYaw);
+			mc.player.setYHeadRot(adjustedYaw);
+			mc.player.setYBodyRot(adjustedYaw);
+			eflyModule.setToggled(true);
+			return;
+		}
+
+
+		if (!mc.player.isFallFlying()) return;
 
 		Direction sideToWall = null;
 		if (!leftHasHole && railing.getValue() != Railing.RIGHT) {
