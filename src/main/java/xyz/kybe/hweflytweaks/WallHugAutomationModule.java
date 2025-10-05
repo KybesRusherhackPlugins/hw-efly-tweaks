@@ -74,6 +74,8 @@ public class WallHugAutomationModule extends ToggleableModule {
 		eflyModule.setToggled(false);
 	}
 
+	boolean firstMoveAwayFromRailing = false;
+
 	@Subscribe
 	public void onMove(EventUpdate event) {
 		updateBlocks();
@@ -154,7 +156,8 @@ public class WallHugAutomationModule extends ToggleableModule {
 		boolean rightHasHole = holes.stream().anyMatch(h -> Vec3.atCenterOf(h).distanceTo(Vec3.atCenterOf(rightRail)) < 5);
 		boolean leftHasHole = holes.stream().anyMatch(h -> Vec3.atCenterOf(h).distanceTo(Vec3.atCenterOf(leftRail)) < 5);
 
-		if (playerPosVec.y > YLevel.getValue() + 1) {
+		if (playerPosVec.y > YLevel.getValue() + 1 || firstMoveAwayFromRailing) {
+			firstMoveAwayFromRailing = false;
 			float mainYaw = dir.toYRot();
 			float adjustedYaw = mainYaw;
 
@@ -178,7 +181,6 @@ public class WallHugAutomationModule extends ToggleableModule {
 			return;
 		}
 
-
 		if (!mc.player.isFallFlying()) return;
 
 		Direction sideToWall = null;
@@ -194,6 +196,8 @@ public class WallHugAutomationModule extends ToggleableModule {
 		if (sideToWall != null) {
 			float sideYaw = sideToWall.toYRot();
 			adjustedYaw = mainYaw + Mth.wrapDegrees(sideYaw - mainYaw) * 0.05f;
+		} else {
+			firstMoveAwayFromRailing = true;
 		}
 
 		mc.player.setYRot(adjustedYaw);
@@ -379,32 +383,5 @@ public class WallHugAutomationModule extends ToggleableModule {
 		}
 
 		return positions;
-	}
-
-	private static Vec3 updateFallFlyingMovement(Vec3 vec3, Vec3 lookAngle, float xRot) {
-		if (mc.player == null) return null;
-
-		float f = xRot * ((float) Math.PI / 180F);
-		double d = Math.sqrt(lookAngle.x * lookAngle.x + lookAngle.z * lookAngle.z);
-		double e = vec3.horizontalDistance();
-		boolean isGoingUp = mc.player.getDeltaMovement().y <= (double) 0.0F;
-		double g = isGoingUp && mc.player.hasEffect(MobEffects.SLOW_FALLING) ? Math.min(mc.player.getGravity(), 0.01) : mc.player.getGravity();
-		double h = Mth.square(Math.cos(f));
-		vec3 = vec3.add(0.0F, g * ((double) -1.0F + h * (double) 0.75F), 0.0F);
-		if (vec3.y < (double) 0.0F && d > (double) 0.0F) {
-			double i = vec3.y * -0.1 * h;
-			vec3 = vec3.add(lookAngle.x * i / d, i, lookAngle.z * i / d);
-		}
-
-		if (f < 0.0F && d > (double) 0.0F) {
-			double i = e * (double) (-Mth.sin(f)) * 0.04;
-			vec3 = vec3.add(-lookAngle.x * i / d, i * 3.2, -lookAngle.z * i / d);
-		}
-
-		if (d > (double) 0.0F) {
-			vec3 = vec3.add((lookAngle.x / d * e - vec3.x) * 0.1, 0.0F, (lookAngle.z / d * e - vec3.z) * 0.1);
-		}
-
-		return vec3.multiply(0.99F, 0.98F, 0.99F);
 	}
 }
