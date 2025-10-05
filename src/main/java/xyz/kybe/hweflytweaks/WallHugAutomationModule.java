@@ -32,9 +32,11 @@ public class WallHugAutomationModule extends ToggleableModule {
 	public BooleanSetting setOnEnable = new BooleanSetting("Set On Enable", "Set \"Direction\", \"Y Level\" and \"Wall Offset\" when enabling", true);
 	public NullSetting colorSettings = new NullSetting("Color Settings", "Settings for colors");
 	public BooleanSetting render = new BooleanSetting("Render", "Render positions", true);
-	public ColorSetting pastColor = new ColorSetting("Past Color", "Color of past positions", ColorUtils.transparency(Color.GRAY.getRGB(), 100));
+	public BooleanSetting renderHole = new BooleanSetting("Render Holes", "Render holes", true);
 	public ColorSetting holeColor = new ColorSetting("Hole Color", "Color of holes", ColorUtils.transparency(Color.RED.getRGB(), 100));
+	public BooleanSetting renderBlockage = new BooleanSetting("Render Blockages", "Render blockages", true);
 	public ColorSetting blockageColor = new ColorSetting("Blockage Color", "Color of blockages", ColorUtils.transparency(Color.YELLOW.getRGB(), 100));
+	public BooleanSetting renderValid = new BooleanSetting("Render Valids", "Render valid positions", true);
 	public ColorSetting validColor = new ColorSetting("Valid Color", "Color of valid positions", ColorUtils.transparency(Color.GREEN.getRGB(), 100));
 	public BooleanSetting manageEfly = new BooleanSetting("Manage Efly", "Automatically manages the efly module for automated wall hugging", true);
 	ArrayList<BlockPos> holes = new ArrayList<>();
@@ -47,7 +49,7 @@ public class WallHugAutomationModule extends ToggleableModule {
 		super("WallHugAutomation", ModuleCategory.MOVEMENT);
 
 		positionSettings.addSubSettings(direction, wallOffset, YLevel, railing, setOnEnable);
-		colorSettings.addSubSettings(render, pastColor, holeColor, blockageColor, validColor);
+		colorSettings.addSubSettings(render, renderHole, holeColor, renderBlockage, blockageColor, renderValid, validColor);
 		this.registerSettings(positionSettings, colorSettings, manageEfly);
 	}
 
@@ -265,16 +267,23 @@ public class WallHugAutomationModule extends ToggleableModule {
 
 		renderer.begin(event.getMatrixStack());
 
-		for (BlockPos pos : holes) {
-			renderer.drawBox(pos, false, true, holeColor.getValue().getRGB());
+		if (!render.getValue()) return;
+		if (renderHole.getValue()) {
+			for (BlockPos pos : holes) {
+				renderer.drawBox(pos, false, true, holeColor.getValue().getRGB());
+			}
 		}
 
-		for (BlockPos pos : blockages) {
-			renderer.drawBox(pos, false, true, blockageColor.getValue().getRGB());
+		if (renderBlockage.getValue()) {
+			for (BlockPos pos : blockages) {
+				renderer.drawBox(pos, false, true, blockageColor.getValue().getRGB());
+			}
 		}
 
-		for (BlockPos pos : valids) {
-			renderer.drawBox(pos, false, true, validColor.getValue().getRGB());
+		if (renderValid.getValue()) {
+			for (BlockPos pos : valids) {
+				renderer.drawBox(pos, false, true, validColor.getValue().getRGB());
+			}
 		}
 
 		renderer.end();
