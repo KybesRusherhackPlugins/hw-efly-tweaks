@@ -44,7 +44,7 @@ dependencies {
 	productionRuntime(modImplementation("net.fabricmc:fabric-loader:${project.fabric_loader_version}"))
 	productionRuntime("net.fabricmc:intermediary:${project.minecraft_version}")
 
-    modCompileOnly files("libs/baritone-api-fabric-1.21.4.jar")
+	modCompileOnly files("libs/baritone-api-fabric-1.21.4.jar")
 
 	//mojmap + parchment mappings
 	mappings loom.layered() {
@@ -59,13 +59,13 @@ dependencies {
 tasks.register('updateAccessWidener', Copy) {
 	group = "build"
 	outputs.upToDateWhen { false }
-	
+
 	def accessWidenerFile = zipTree(this.project.configurations.rusherhackApi.singleFile).matching {
 		include "rusherhack.accesswidener"
 	}.files.iterator().next()
-	
+
 	println("rusherhack access widener: " + accessWidenerFile)
-	
+
 	from(accessWidenerFile)
 	into(file("build/tmp/" + this.project.minecraft_version))
 }
@@ -82,9 +82,9 @@ tasks.register('runPlugin', JavaExec) {
 		workingDir.mkdirs()
 
 		args(
-				"--assetIndex", loom.minecraftProvider.versionInfo.assetIndex().fabricId(loom.minecraftProvider.minecraftVersion()),
-				"--assetsDir", new File(loom.files.userCache, "assets").absolutePath,
-				"--gameDir", workingDir.absolutePath
+			"--assetIndex", loom.minecraftProvider.versionInfo.assetIndex().fabricId(loom.minecraftProvider.minecraftVersion()),
+			"--assetsDir", new File(loom.files.userCache, "assets").absolutePath,
+			"--gameDir", workingDir.absolutePath
 		)
 
 		def rusherLoaderJarFile = project.layout.getProjectDirectory().file("lib/rusherhack-loader.jar").asFile
@@ -94,8 +94,8 @@ tasks.register('runPlugin', JavaExec) {
 		def rusherLoaderJarPath = project.layout.getProjectDirectory().file("lib/rusherhack-loader.jar").asFile.absolutePath
 
 		jvmArgs(
-				"-Drusherhack.enablePlugins=true",
-				"-Dfabric.addMods=${rusherLoaderJarPath}",
+			"-Drusherhack.enablePlugins=true",
+			"-Dfabric.addMods=${rusherLoaderJarPath}",
 		)
 	}
 }
@@ -109,7 +109,7 @@ tasks.register("copyPluginToRunDir", Copy) {
 
 loom {
 	def accessWidenerFile = new File("build/tmp/${this.project.minecraft_version}/rusherhack.accesswidener")
-	if(accessWidenerFile.exists()) {
+	if (accessWidenerFile.exists()) {
 		accessWidenerPath = accessWidenerFile
 	} else {
 		println("RUSHERHACK ACCESS WIDENER NOT FOUND. Please run the 'updateAccessWidener' task.")
@@ -145,7 +145,7 @@ processResources {
 jar {
 	manifest {
 		attributes(
-				"Minecraft-Version": project.minecraft_version
+			"Minecraft-Version": project.minecraft_version
 		)
 	}
 }

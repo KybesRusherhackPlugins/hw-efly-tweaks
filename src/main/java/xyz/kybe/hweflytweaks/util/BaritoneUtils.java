@@ -4,7 +4,6 @@ import baritone.api.BaritoneAPI;
 import baritone.api.IBaritone;
 import baritone.api.pathing.goals.Goal;
 import baritone.api.pathing.goals.GoalBlock;
-import baritone.api.pathing.goals.GoalGetToBlock;
 import net.minecraft.core.BlockPos;
 
 public class BaritoneUtils {
@@ -18,7 +17,7 @@ public class BaritoneUtils {
 		return baritone.getPathingBehavior().isPathing();
 	}
 
-	public static void stopBaritone(){
+	public static void stopBaritone() {
 		baritone.getPathingBehavior().cancelEverything();
 	}
 

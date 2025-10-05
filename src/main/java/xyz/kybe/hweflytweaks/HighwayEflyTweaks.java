@@ -9,7 +9,7 @@ public class HighwayEflyTweaks extends Plugin {
 		final WallHugAutomationModule wallHugAutomationModule = new WallHugAutomationModule();
 		RusherHackAPI.getModuleManager().registerFeature(wallHugAutomationModule);
 	}
-	
+
 	@Override
 	public void onUnload() {
 	}

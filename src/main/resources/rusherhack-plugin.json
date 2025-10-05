@@ -1,13 +1,13 @@
 {
-  "Plugin-Class": "xyz.kybe.hweflytweaks.HighwayEflyTweaks",
-  "Name": "${project.plugin_name}",
-  "Version": "${project.plugin_version}",
-  "Description": "Highway E-Fly Tweaks",
-  "URL": "",
-  "Authors": [
-    "2kybe3"
-  ],
-  "Minecraft-Versions": [
-    "${project.minecraft_version}"
-  ]
+	"Plugin-Class": "xyz.kybe.hweflytweaks.HighwayEflyTweaks",
+	"Name": "${project.plugin_name}",
+	"Version": "${project.plugin_version}",
+	"Description": "Highway E-Fly Tweaks",
+	"URL": "",
+	"Authors": [
+		"2kybe3"
+	],
+	"Minecraft-Versions": [
+		"${project.minecraft_version}"
+	]
 }

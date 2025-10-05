@@ -1,24 +1,16 @@
 package xyz.kybe.hweflytweaks;
 
-import com.jcraft.jorbis.Block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 import org.rusherhack.client.api.RusherHackAPI;
 import org.rusherhack.client.api.events.client.EventUpdate;
-import org.rusherhack.client.api.events.player.EventMove;
-import org.rusherhack.client.api.events.player.EventTravel;
 import org.rusherhack.client.api.events.render.EventRender3D;
 import org.rusherhack.client.api.feature.module.ModuleCategory;
 import org.rusherhack.client.api.feature.module.ToggleableModule;
 import org.rusherhack.client.api.render.IRenderer3D;
 import org.rusherhack.client.api.setting.ColorSetting;
-import org.rusherhack.client.api.utils.ChatUtils;
-import org.rusherhack.core.event.stage.Stage;
 import org.rusherhack.core.event.subscribe.Subscribe;
 import org.rusherhack.core.setting.BooleanSetting;
 import org.rusherhack.core.setting.EnumSetting;
@@ -38,27 +30,18 @@ public class WallHugAutomationModule extends ToggleableModule {
 	public NumberSetting<Integer> YLevel = new NumberSetting<>("Y Level", 120, -64, 319);
 	public EnumSetting<Railing> railing = new EnumSetting<>("Railing", "Which side to hug", Railing.BOTH);
 	public BooleanSetting setOnEnable = new BooleanSetting("Set On Enable", "Set \"Direction\", \"Y Level\" and \"Wall Offset\" when enabling", true);
-
-	public enum Railing {
-		LEFT,
-		RIGHT,
-		BOTH
-	}
-
 	public NullSetting colorSettings = new NullSetting("Color Settings", "Settings for colors");
 	public BooleanSetting render = new BooleanSetting("Render", "Render positions", true);
 	public ColorSetting pastColor = new ColorSetting("Past Color", "Color of past positions", ColorUtils.transparency(Color.GRAY.getRGB(), 100));
 	public ColorSetting holeColor = new ColorSetting("Hole Color", "Color of holes", ColorUtils.transparency(Color.RED.getRGB(), 100));
 	public ColorSetting blockageColor = new ColorSetting("Blockage Color", "Color of blockages", ColorUtils.transparency(Color.YELLOW.getRGB(), 100));
 	public ColorSetting validColor = new ColorSetting("Valid Color", "Color of valid positions", ColorUtils.transparency(Color.GREEN.getRGB(), 100));
-
 	public BooleanSetting manageEfly = new BooleanSetting("Manage Efly", "Automatically manages the efly module for automated wall hugging", true);
-
 	ArrayList<BlockPos> holes = new ArrayList<>();
 	ArrayList<BlockPos> blockages = new ArrayList<>();
 	ArrayList<BlockPos> valids = new ArrayList<>();
-
 	boolean baritone = false;
+	boolean firstMoveAwayFromRailing = false;
 
 	public WallHugAutomationModule() {
 		super("WallHugAutomation", ModuleCategory.MOVEMENT);
@@ -73,8 +56,6 @@ public class WallHugAutomationModule extends ToggleableModule {
 		ToggleableModule eflyModule = (ToggleableModule) RusherHackAPI.getModuleManager().getFeature("ElytraFly").get();
 		eflyModule.setToggled(false);
 	}
-
-	boolean firstMoveAwayFromRailing = false;
 
 	@Subscribe
 	public void onMove(EventUpdate event) {
@@ -100,7 +81,8 @@ public class WallHugAutomationModule extends ToggleableModule {
 			for (BlockPos pos : path) {
 				boolean tooClose = blockages.stream().anyMatch(b -> b.closerThan(pos, 4));
 				if (!tooClose) tooClose = holes.stream().anyMatch(h -> h.closerThan(pos, 4));
-				if (mc.level.getBlockState(pos.below()).getCollisionShape(mc.level, pos.below()).isEmpty()) tooClose = true;
+				if (mc.level.getBlockState(pos.below()).getCollisionShape(mc.level, pos.below()).isEmpty())
+					tooClose = true;
 				if (!tooClose) {
 					target = pos;
 					break;
@@ -139,8 +121,8 @@ public class WallHugAutomationModule extends ToggleableModule {
 		BlockPos frontPos = playerBlockPos.relative(dir, 1);
 		boolean frontBlocked = blockages.stream().anyMatch(b -> b.equals(frontPos));
 		boolean nearHole = holes.stream().anyMatch(h -> h.getY() < YLevel.getValue() &&
-				Vec3.atCenterOf(h).distanceTo(playerPosVec) < 10 &&
-				isInFront(playerPosVec, h, dir));
+			Vec3.atCenterOf(h).distanceTo(playerPosVec) < 10 &&
+			isInFront(playerPosVec, h, dir));
 
 		if (frontBlocked || nearHole) {
 			eflyModule.setToggled(false);
@@ -383,5 +365,11 @@ public class WallHugAutomationModule extends ToggleableModule {
 		}
 
 		return positions;
+	}
+
+	public enum Railing {
+		LEFT,
+		RIGHT,
+		BOTH
 	}
 }
